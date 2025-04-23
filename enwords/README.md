@@ -19,7 +19,7 @@
     enwords.exeが本体です。
 
 ディレクトリ構成
-install
+enwords
     ├──src
     │    ├──main.c
     │    ├──changesb.c

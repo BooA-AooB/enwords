@@ -11,6 +11,7 @@ struct stataus{
 };
 
 struct stataus st;
+bool returnhome;
 
 //設定ファイルを読み込む
 void readstataus(){
@@ -80,6 +81,7 @@ main(){
     {
         //homeウィンドウを開く
         openhomewindow();
+        returnhome=false;
         //問題の出題、回答ウィンドウを表示する。
         study();
     }
