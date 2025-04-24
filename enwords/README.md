@@ -23,6 +23,7 @@ enwords
     ├──src
     │    ├──main.c
     │    ├──changesb.c
+    │    ├──defdb.pgc
     │    └──Makefile
     └──pg
         ├──README.md
