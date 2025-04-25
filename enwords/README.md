@@ -20,7 +20,7 @@
 
 ディレクトリ構成
 enwords
-    ├──src
+    ├──src\n
     │    ├──main.c
     │    ├──changedb.c
     │    ├──dbfunc.pgc
