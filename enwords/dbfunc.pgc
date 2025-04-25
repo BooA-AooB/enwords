@@ -1,0 +1,13 @@
+//mainから読みだすpgcファイル
+#include <stdio.h>
+
+//dbからレコードの個数を返す。
+int countrecord(){
+    
+    return ;
+}
+
+//dbから英単語+候補数分を返す
+int getwords(int choices+1){
+    return ;
+}
