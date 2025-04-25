@@ -11,3 +11,18 @@ int countrecord(){
 int getwords(int choices+1){
     return ;
 }
+
+int insertwords(const char* a,const char* b){
+    //成功
+    return 0;
+}
+
+int deletewords(const char* a,const char* b){
+    //成功
+    return 0;
+}
+
+int viewwords(void){
+    //成功
+    return 0;
+}

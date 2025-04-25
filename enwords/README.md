@@ -22,7 +22,7 @@
 enwords
     ├──src
     │    ├──main.c
-    │    ├──changesb.c
+    │    ├──changedb.c
     │    ├──dbfunc.pgc
     │    ├──defdb.pgc
     │    └──Makefile
