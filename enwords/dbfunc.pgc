@@ -8,8 +8,11 @@ int countrecord(){
 }
 
 //dbから英単語+候補数分を返す
-int getwords(int choices+1){
-    return ;
+int getwords(int choices){
+    choices++;
+    char** ans[choices];
+    //0に正解を入れる
+    return ans;
 }
 
 int insertwords(const char* a,const char* b){
