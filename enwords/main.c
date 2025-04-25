@@ -5,6 +5,7 @@
 
 #define CONFIG_FILE "stataus.conf"
 
+//stataus.confを入れる構造体
 struct stataus{
     int choices;
     bool random;
@@ -44,7 +45,7 @@ void readstataus(){
 }
 
 openhomewindow(){
-    //設定ファイルを読み込み、値を保存
+    //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
 }
@@ -92,7 +93,7 @@ void study(){
         //候補の数に合うように描画する
         //候補、回答を取得する.回答は配列の0番目
         char** ans;
-        ans=getwords(st.choices);
+        ans=getwords(st.choices,st.random);
         //選択肢が選ばれたら正解か不正解かを判定し、描画する
         drawjudge();
         //『ホームに戻る』が押されたら、ループを終了する
@@ -106,6 +107,7 @@ void study(){
 main(){
     while(true)
     {
+        cleardb();
         //homeウィンドウを開く
         openhomewindow();
         returnhome=false;

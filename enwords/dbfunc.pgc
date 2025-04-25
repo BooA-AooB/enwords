@@ -1,26 +1,81 @@
 //mainから読みだすpgcファイル
 #include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+//変数に代入するときは : で中身を取り出す
+
+//dbの出題済み(仮)の列をすべてboolean=falseにする.
+void cleardb(void){
+    EXEC SQL CONNECT TO enwords;
+    EXEC SQL UPDATE enwords finish =false WHERE finish=true;
+    EXEC SQL DISCONNECT enwords;
+}
 
 //dbからレコードの個数を返す。
 int countrecord(){
-    
-    return ;
+    EXEC SQL BEGIN DECLARE SECTION;
+    int countrecord;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL CONNECT TO enwords;
+    EXEC SQL SELECT COUNT(*) INTO :countrecord FROM enwords;
+    EXEC SQL DISCONNECT enwords;
+    return countrecord;
 }
 
 //dbから英単語+候補数分を返す
-int getwords(int choices){
+int getwords(int choices,bool random){
+    EXEC SQL BEGIN DECLARE SECTION;
     choices++;
-    char** ans[choices];
+    char** ans[choices+1];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO enwords;
+    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE RANDOM = false;
+    EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en=ans[0];
+    for (int i=2;i<choices;i++){
+        EXEC SQL SELECT en INTO :ans[i] FROM enwords;
+    }
+    EXEC SQL COMMIT; 
+    EXEC SQL DISCONNECT enwords;
     //0に正解を入れる
     return ans;
 }
 
-int insertwords(const char* a,const char* b){
+int insertwords(const char* jp,const char* en){
+    EXEC SQL BEGIN DECLARE SECTION;
+    char word_jp[100];
+    char word_en[100];
+    EXEC SQL END DECLARE SECTION;
+
+    strncpy(word_jp, jp,sizeof(word_jp)-1); 
+    word_jp[sizeof(word_jp)-1] = '\0';
+    strncpy(word_en, en,sizeof(word_en)-1);
+    word_en[sizeof(word_en)-1] = '\0'; 
+
+    EXEC SQL CONNECT TO enwords;
+    EXEC SQL INSERT INTO enwords (jp,en) VALUES (:word_jp,:word_en);
+    EXEC SQL COMMIT; 
+    EXEC SQL DISCONNECT enwords;
     //成功
     return 0;
 }
 
-int deletewords(const char* a,const char* b){
+int deletewords(const char* jp,const char* en){
+    EXEC SQL BEGIN DECLARE SECTION;
+    char word_jp[100];
+    char word_en[100];
+    EXEC SQL END DECLARE SECTION;
+
+    strncpy(word_jp, jp,sizeof(word_jp)-1); 
+    word_jp[sizeof(word_jp)-1] = '\0';
+    strncpy(word_en, en,sizeof(word_en)-1);
+    word_en[sizeof(word_en)-1] = '\0'; 
+
+    EXEC SQL CONNECT TO enwords;
+    EXEC SQL DELETE FROM enwords WHERE jp=:word_jp AND en=:word_en;
+    EXEC SQL COMMIT; 
+    EXEC SQL DISCONNECT enwords;
     //成功
     return 0;
 }
