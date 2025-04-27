@@ -1,3 +1,4 @@
+#define UNICODE
 #include <stdio.h>
 #include <windows.h>
 #include <stdlib.h>
@@ -13,6 +14,7 @@ struct stataus{
 
 struct stataus st;
 bool returnhome;
+HINSTANCE hInstancea;
 
 //設定ファイルを読み込む
 void readstataus(){
@@ -48,6 +50,9 @@ openhomewindow(){
     //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
+    HWND hwnd = CreateWindow(
+    TEXT("HOME"),TEXT("HOME"),
+    WS_CAPTION,960,540,200,200,NULL,NULL,hInstancea,NULL);
 }
 
 /*
@@ -64,12 +69,14 @@ judge(){
 
 //正解の描画を行う
 drawT(){
-    
+    MessageBox(NULL , TEXT("正解") ,
+			TEXT("判定") , MB_ICONINFORMATION);
 }
 
 //不正解の描画を行う
 drawF(){
-    
+    MessageBox(NULL , TEXT("不正解") ,
+			TEXT("判定") , MB_ICONINFORMATION);
 }
 
 //判定結果によって描画を行う
@@ -104,7 +111,13 @@ void study(){
     }
 }
 
-main(){
+int WINAPI WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    PSTR lpCmdLine,
+    int nCmdShow){
+    
+    HINSTANCE hInstancea = hInstance;
     while(true)
     {
         cleardb();
@@ -114,4 +127,5 @@ main(){
         //問題の出題、回答ウィンドウを表示する
         study();
     }
+    return 0;
 }
