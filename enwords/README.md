@@ -24,7 +24,7 @@ enwords
     │    ├──main.c
     │    ├──changedb.c
     │    ├──dbfunc.pgc
-    │    ├──defdb.pgc
+    │    ├──defdb.sql
     │    └──Makefile
     └──pg
         ├──README.md
@@ -37,3 +37,6 @@ enwords
 WindowAPIを用いているため、Windowsでのみ動作します。
 stataus.confの候補数は、enwords.dbに登録されている数を上回らないようにしてください。
 MakefileはMinGW環境です。ccにgccを指定しています。CygWin等の他のコンパイラを使用される際は、確認、修正後にコンパイルをしてください。
+
+検討
+スマホからも扱うためにWebAPIを用いてWebアプリにする.→とりあえずLAN内のみの予定

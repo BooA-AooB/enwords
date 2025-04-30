@@ -1,5 +1,0 @@
-#include <stdio.h>
-
-int main(){
-    EXEC SQL CONNECT TO template0
-}
