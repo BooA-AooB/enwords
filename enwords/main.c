@@ -62,7 +62,7 @@ drawT関数は正解のメッセージボックスを表示し、drawF関数は�
 drawjudge関数はjudge関数の結果に応じて、正解ならdrawT()、不正解ならdrawF()を呼び出します
 */
 
-
+//正解、不正解の判定を行う
 bool judge(){
     return true;
     return false;
