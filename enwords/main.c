@@ -46,7 +46,7 @@ void readstataus(){
     return ;
 }
 
-openhomewindow(){
+void openhomewindow(){
     //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
@@ -63,18 +63,19 @@ drawjudge関数はjudge関数の結果に応じて、正解ならdrawT()、不�
 */
 
 
-judge(){
-    
+bool judge(){
+    return true;
+    return false;
 }
 
 //正解の描画を行う
-drawT(){
+void drawT(){
     MessageBox(NULL , TEXT("正解") ,
 			TEXT("判定") , MB_ICONINFORMATION);
 }
 
 //不正解の描画を行う
-drawF(){
+void drawF(){
     MessageBox(NULL , TEXT("不正解") ,
 			TEXT("判定") , MB_ICONINFORMATION);
 }
