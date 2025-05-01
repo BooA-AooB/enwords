@@ -52,7 +52,7 @@ void openhomewindow(){
     //ウィンドウと『問題を出題する』ボタンを作成する
     HWND hwnd = CreateWindow(
     TEXT("HOME"),TEXT("HOME"),
-    WS_CAPTION,960,540,200,200,NULL,NULL,hInstancea,NULL);
+    WS_CAPTION,960,540,100,100,NULL,NULL,hInstancea,NULL);
 }
 
 /*
