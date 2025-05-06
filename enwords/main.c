@@ -1,8 +1,11 @@
 //enwords実行ファイルのmainファイル
+//『☆彡』は途中
 #define UNICODE
 #define BUTTON_ID1 0
 #define BUTTON_ID2 1
 #define BUTTON_ID3 2
+#define BUTTON_ID4 3
+#define BUTTON_ANSWER 99
 #include <stdio.h>
 #include <windows.h>
 #include <string.h>
@@ -30,7 +33,15 @@ struct stataus st;
 bool returnhome;
 HINSTANCE hInstancea;
 //ボタンが押されたかどうかのフラグ
-bool clickbutton=FALSE;
+bool clickbutton=false;
+//ウィンドウを閉じるかのフラグ
+bool endflag=false;
+//問題の回答したか、正解かのフラグ
+bool end=false;
+bool answer=false;
+//出題数、正解数
+int question=0; 
+int correct=0;
 
 //設定ファイルを読み込む
 void readstataus(){
@@ -68,43 +79,48 @@ LRESULT CALLBACK WndProcHOME(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	switch (msg) {
     case WM_COMMAND:
         switch(LOWORD(wp)) {
+            //問題へ
             case BUTTON_ID1:
-                clickbutton=TRUE;
+                clickbutton=true;
                 DestroyWindow(hwnd);
                 break;
+            //正答率を表示するメッセージウィンドウ
+            case BUTTON_ID3:
+                LPCWSTR rate;
+                swprintf(rate, 256 ,L"%d問中%d問正解です", question, correct);
+                MessageBox(NULL , rate ,
+                    TEXT("正答率") , MB_ICONINFORMATION);
             }
 	}
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
-void openhomewindow(HINSTANCE hInstancea){
+int openhomewindow(HINSTANCE hInstancea){
     HWND hwnd;
     MSG msg;
-	WNDCLASS winc;
-    winc.style		= CS_HREDRAW | CS_VREDRAW;
-	winc.lpfnWndProc	= WndProcHOME;
-	winc.cbClsExtra	= winc.cbWndExtra	= 0;
-	winc.hInstance		= hInstancea;
-	winc.hIcon		= LoadIcon(NULL , IDI_APPLICATION);
-	winc.hCursor		= LoadCursor(NULL , IDC_ARROW);
-	winc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
-	winc.lpszMenuName	= NULL;
-	winc.lpszClassName	= TEXT("HOME");
 
-    if (!RegisterClass(&winc)) return -1;
+    clickbutton=false;
     //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
     hwnd = CreateWindow(
     TEXT("HOME"),TEXT("HOME"),
-    WS_CAPTION,960,540,100,100,NULL,NULL,hInstancea,NULL);
+    WS_OVERLAPPEDWINDOW | WS_VISIBLE ,
+    CW_USEDEFAULT , CW_USEDEFAULT ,
+    CW_USEDEFAULT , CW_USEDEFAULT ,NULL,NULL,hInstancea,NULL);
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
     CreateWindow(
-        TEXT("BUTTON") , TEXT("Kitty") ,
+        TEXT("BUTTON") , TEXT("問題を出題する") ,
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
-        0 , 0 , 100 , 50 ,
+        0 , 0 , 300 , 100 ,
         hwnd , (HMENU)BUTTON_ID1 , hInstancea , NULL
+    );
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("正答率を確認") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 50 , 300 , 50 ,
+        hwnd , (HMENU)BUTTON_ID3 , hInstancea , NULL
     );
     while (!clickbutton && GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
@@ -119,18 +135,11 @@ judge関数はデータベースに選択肢が正解か不正解かを問い合
 正解ならばdrawに正解を渡し、そうでないならば不正解を渡す
 */
 
-☆
-//正解、不正解の判定を行う
-bool judge(){
-    return true;
-    return false;
-}
+//☆
 
 //判定結果によって描画を行う
 void drawjudge(){
-    bool answer;
     LPCWSTR draw;
-    answer=judge();
     if (answer==true)
     {
         draw=L"正解";
@@ -143,22 +152,138 @@ void drawjudge(){
 			TEXT("判定") , MB_ICONINFORMATION);
 }
 
-☆
+//☆
 
 //BASEウィンドウボタンの描画
 LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	switch (msg) {
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
+	    case WM_COMMAND:
+            switch(LOWORD(wp)) {
+                //HOMEに戻る
+                case BUTTON_ID2:
+                    returnhome=true;
+                    DestroyWindow(hwnd);
+                    break;
+                //正答率を表示するメッセージウィンドウ
+                case BUTTON_ID3:
+                    LPCWSTR rate[256];
+                    swprintf(rate, 256 ,L"%d問中%d問正解です", question, correct);
+                    MessageBox(NULL , rate ,
+                        TEXT("正答率") , MB_ICONINFORMATION);
+                    break;
+                //次の問題へ
+                case BUTTON_ID4:
+                    endflag=true;
+                    DestroyWindow(hwnd);
+                    break;
+                //判定
+                case BUTTON_ANSWER:
+                    answer=true;
+                    correct++;
+                    break;
+                }
 	}
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
-int drawBase(HINSTANCE hInstancea){
+int drawBase(HINSTANCE hInstancea,char** ans){
     HWND hwnd;
     MSG msg;
-	WNDCLASS winc;
+    question++;
+
+    hwnd = CreateWindow(
+        TEXT("BASE") , TEXT("question") ,
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE ,
+        CW_USEDEFAULT , CW_USEDEFAULT ,
+        CW_USEDEFAULT , CW_USEDEFAULT ,
+        NULL , NULL , hInstancea , NULL
+    );
+    
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+    
+    //HOMEに戻るボタンを作成する
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("HOMEに戻る") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 0 , 300 , 50 ,
+        hwnd , (HMENU)BUTTON_ID2 , hInstancea , NULL
+    );
+    
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("正答率を確認") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 50 , 300 , 50 ,
+        hwnd , (HMENU)BUTTON_ID3 , hInstancea , NULL
+    );
+    
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("NEXT") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 50 , 300 , 50 ,
+        hwnd , (HMENU)BUTTON_ID4 , hInstancea , NULL
+    );
+
+    for (int i = 0; i < st.choices; ++i) {
+        CreateWindow(
+            TEXT("Button"),
+            TEXT("Window"),
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            100 + i * 40, 100 + i * 40,
+            300, 50,
+            NULL, NULL, hInstancea, NULL
+        );
+    }
+
+    while (!returnhome && !endflag && !end && GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+
+void study(HINSTANCE hInstancea){
+    bool returnhome=false;
+    while (true)
+    {
+        answer=false;
+        endflag=false;
+        end=false;
+        //候補、回答を取得する.回答は配列の0番目
+        char** ans;
+        ans=getwords(st.choices,st.random);
+        //候補の数に合うように描画する
+        drawBase(hInstancea,ans);
+        //選択肢が選ばれたら正解か不正解かを判定し、描画する
+        if (end==true){
+            drawjudge();
+        }
+        //『ホームに戻る』が押されたら、ループを終了する
+        free(ans);
+        if (returnhome == true){
+            break;
+        }
+    }
+}
+
+int RegisterClassHOME(){
+    //初期化していないと不定なので、設定漏れのために初期化するらしい
+	WNDCLASS winc = {0};
+    winc.style		= CS_HREDRAW | CS_VREDRAW;
+	winc.lpfnWndProc	= WndProcHOME;
+	winc.cbClsExtra	= winc.cbWndExtra	= 0;
+	winc.hInstance		= hInstancea;
+	winc.hIcon		= LoadIcon(NULL , IDI_APPLICATION);
+	winc.hCursor		= LoadCursor(NULL , IDC_ARROW);
+	winc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
+	winc.lpszMenuName	= NULL;
+	winc.lpszClassName	= TEXT("HOME");
+
+    if (!RegisterClass(&winc)) return -1;
+    return 0;
+}
+
+int RegisterClassBASE(){
+    WNDCLASS winc={0};
     winc.style		= CS_HREDRAW | CS_VREDRAW;
 	winc.lpfnWndProc	= WndProcBASE;
 	winc.cbClsExtra	= winc.cbWndExtra	= 0;
@@ -170,49 +295,7 @@ int drawBase(HINSTANCE hInstancea){
 	winc.lpszClassName	= TEXT("BASE");
 
     if (!RegisterClass(&winc)) return -1;
-
-    hwnd = CreateWindow(
-        TEXT("BASE") , TEXT("question") ,
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE ,
-        CW_USEDEFAULT , CW_USEDEFAULT ,
-        CW_USEDEFAULT , CW_USEDEFAULT ,
-        NULL , NULL , hInstancea , NULL
-    );
-
-    CreateWindow(
-        TEXT("BUTTON") , TEXT("Kitty") ,
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
-        0 , 0 , 100 , 50 ,
-        hwnd , (HMENU)BUTTON_ID2 , hInstancea , NULL
-    );
-    CreateWindow(
-        TEXT("BUTTON") , TEXT("Kitty") ,
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
-        0 , 0 , 100 , 50 ,
-        hwnd , (HMENU)BUTTON_ID3 , hInstancea , NULL
-    );
-    while(GetMessage(&msg , NULL , 0 , 0)) DispatchMessage(&msg);
-
-	return msg.wParam;
-}
-
-void study(HINSTANCE hInstancea){
-    bool returnhome=false;
-    while (true)
-    {
-        //候補の数に合うように描画する
-        drawBase(hInstancea);
-        //候補、回答を取得する.回答は配列の0番目
-        char** ans;
-        ans=getwords(st.choices,st.random);
-        //選択肢が選ばれたら正解か不正解かを判定し、描画する
-        drawjudge();
-        //『ホームに戻る』が押されたら、ループを終了する
-        free(ans);
-        if (returnhome == true){
-            break;
-        }
-    }
+    return 0;
 }
 
 int WINAPI WinMain(
@@ -221,7 +304,10 @@ int WINAPI WinMain(
     PSTR lpCmdLine,
     int nCmdShow){
     
-    HINSTANCE hInstancea = hInstance;
+    hInstancea = hInstance;
+    
+    RegisterClassHOME();
+    RegisterClassBASE();
     while(true)
     {
         cleardb();

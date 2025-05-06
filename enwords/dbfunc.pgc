@@ -31,8 +31,9 @@ int getwords(int choices,bool random){
     EXEC SQL END DECLARE SECTION;
 
     EXEC SQL CONNECT TO enwords;
-    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE RANDOM = false;
+    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE finish = false;
     EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en=ans[0];
+    EXEC SQL UPDATE enwords finish =true;
     for (int i=2;i<choices;i++){
         EXEC SQL SELECT en INTO :ans[i] FROM enwords;
     }
