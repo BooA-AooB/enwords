@@ -328,7 +328,8 @@ int WINAPI WinMain(
     RegisterClassBASE();
     while(true)
     {
-        //cleardb();
+        cleardb();
+        printf("%d", 1);
         //homeウィンドウを開く
         clickbutton=false;
         openhomewindow(hInstancea);

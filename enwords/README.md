@@ -22,14 +22,13 @@
 enwords
     ├──src
     │    ├──main.c
-    │    ├──changedb.c
+    │    ├──(途中)changedb.c
     │    ├──dbfunc.pgc
-    │    ├──defdb.sql
-    │    └──Makefile
+    │    └──defdb.sql
     └──pg
         ├──README.md
         ├──enwords.exe
-        ├──changedb.exe
+        ├──(途中)changedb.exe
         └──stataus.conf
 
 **注意**

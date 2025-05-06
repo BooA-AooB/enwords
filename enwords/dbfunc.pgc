@@ -11,7 +11,7 @@ void cleardb(void){
     EXEC SQL UPDATE enwords SET finish = false WHERE finish = true;
     EXEC SQL DISCONNECT enwords;
 }
-
+/*
 //dbからレコードの個数を返す。
 int countrecord(){
     EXEC SQL BEGIN DECLARE SECTION;
@@ -22,26 +22,40 @@ int countrecord(){
     EXEC SQL DISCONNECT enwords;
     return countrecord;
 }
+*/
 
 //dbから英単語+候補数分を返す
 int getwords(int choices,bool random){
     EXEC SQL BEGIN DECLARE SECTION;
-    char* ans[256];
+    struct varchar {
+        int len;
+        char arr[100];
+    } ans[256];
     EXEC SQL END DECLARE SECTION;
-
+    
+    char** result = malloc(sizeof(char*) * (choices + 1));
+    for (int i = 0; i < choices + 1; ++i) {
+        result[i] = malloc(100); 
+    }
+    
     EXEC SQL CONNECT TO enwords;
     EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
     EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en = :ans[0];
-    EXEC SQL UPDATE enwords SET finish =true;
+    EXEC SQL UPDATE enwords SET finish =true WHERE en = :ans[0];
     for (int i=2;i<choices;i++){
         EXEC SQL SELECT en INTO :ans[i] FROM enwords WHERE en <> :ans[0] ORDER BY random() LIMIT 1;
     }
     EXEC SQL COMMIT; 
     EXEC SQL DISCONNECT enwords;
     //0に正解を入れる
+    for (int i = 0; i < choices + 1; ++i){
+        strncpy(result[i], ans[i].arr, ans[i].len);
+        result[i][ans[i].len] = '\0';  // null終端
+    }
     return ans;
 }
 
+/*
 int insertwords(const char* jp,const char* en){
     EXEC SQL BEGIN DECLARE SECTION;
     char word_jp[100];
@@ -84,3 +98,4 @@ int viewwords(void){
     //成功
     return 0;
 }
+*/
