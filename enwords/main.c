@@ -1,5 +1,8 @@
 //enwords実行ファイルのmainファイル
 #define UNICODE
+#define BUTTON_ID1 0
+#define BUTTON_ID2 1
+#define BUTTON_ID3 2
 #include <stdio.h>
 #include <windows.h>
 #include <string.h>
@@ -12,6 +15,7 @@
 part1
 設定ファイルから出題をランダムにするか、出題する問題数を取得し、構造体に渡す
 ホームウィンドウを描画する
+問題を出題ボタンを押すと、画面を破棄して次の動作を行う
 */
 
 
@@ -22,8 +26,11 @@ struct stataus{
 };
 
 struct stataus st;
+//HOMEに戻るかのフラグ
 bool returnhome;
 HINSTANCE hInstancea;
+//ボタンが押されたかどうかのフラグ
+bool clickbutton=FALSE;
 
 //設定ファイルを読み込む
 void readstataus(){
@@ -56,16 +63,53 @@ void readstataus(){
     fclose(fin);
 }
 
-☆
+//HOMEウィンドウボタンの描画
+LRESULT CALLBACK WndProcHOME(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
+	switch (msg) {
+    case WM_COMMAND:
+        switch(LOWORD(wp)) {
+            case BUTTON_ID1:
+                clickbutton=TRUE;
+                DestroyWindow(hwnd);
+                break;
+            }
+	}
+	return DefWindowProc(hwnd , msg , wp , lp);
+}
+
 void openhomewindow(HINSTANCE hInstancea){
+    HWND hwnd;
+    MSG msg;
+	WNDCLASS winc;
+    winc.style		= CS_HREDRAW | CS_VREDRAW;
+	winc.lpfnWndProc	= WndProcHOME;
+	winc.cbClsExtra	= winc.cbWndExtra	= 0;
+	winc.hInstance		= hInstancea;
+	winc.hIcon		= LoadIcon(NULL , IDI_APPLICATION);
+	winc.hCursor		= LoadCursor(NULL , IDC_ARROW);
+	winc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
+	winc.lpszMenuName	= NULL;
+	winc.lpszClassName	= TEXT("HOME");
+
+    if (!RegisterClass(&winc)) return -1;
     //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
-    HWND hwnd = CreateWindow(
+    hwnd = CreateWindow(
     TEXT("HOME"),TEXT("HOME"),
     WS_CAPTION,960,540,100,100,NULL,NULL,hInstancea,NULL);
-    ShowWindow(hwnd , SW_SHOW);
-    DestroyWindow(hwnd);
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("Kitty") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 0 , 100 , 50 ,
+        hwnd , (HMENU)BUTTON_ID1 , hInstancea , NULL
+    );
+    while (!clickbutton && GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }
 
 /*
@@ -101,8 +145,8 @@ void drawjudge(){
 
 ☆
 
-//ボタンの描画
-LRESULT CALLBACK WndProc(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
+//BASEウィンドウボタンの描画
+LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	switch (msg) {
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -116,7 +160,7 @@ int drawBase(HINSTANCE hInstancea){
     MSG msg;
 	WNDCLASS winc;
     winc.style		= CS_HREDRAW | CS_VREDRAW;
-	winc.lpfnWndProc	= WndProc;
+	winc.lpfnWndProc	= WndProcBASE;
 	winc.cbClsExtra	= winc.cbWndExtra	= 0;
 	winc.hInstance		= hInstancea;
 	winc.hIcon		= LoadIcon(NULL , IDI_APPLICATION);
@@ -139,7 +183,13 @@ int drawBase(HINSTANCE hInstancea){
         TEXT("BUTTON") , TEXT("Kitty") ,
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
         0 , 0 , 100 , 50 ,
-        hwnd , NULL , hInstancea , NULL
+        hwnd , (HMENU)BUTTON_ID2 , hInstancea , NULL
+    );
+    CreateWindow(
+        TEXT("BUTTON") , TEXT("Kitty") ,
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
+        0 , 0 , 100 , 50 ,
+        hwnd , (HMENU)BUTTON_ID3 , hInstancea , NULL
     );
     while(GetMessage(&msg , NULL , 0 , 0)) DispatchMessage(&msg);
 
