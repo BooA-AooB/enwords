@@ -30,13 +30,12 @@ enwords
         ├──README.md
         ├──enwords.exe
         ├──changedb.exe
-        ├──stataus.conf
-        └──enwords.db
+        └──stataus.conf
 
 **注意**
 WindowAPIを用いているため、Windowsでのみ動作します。
-stataus.confの候補数は、enwords.dbに登録されている数を上回らないようにしてください。
+stataus.confの候補数は、DBに登録されている数を上回らないようにしてください。
 MakefileはMinGW環境です。ccにgccを指定しています。CygWin等の他のコンパイラを使用される際は、確認、修正後にコンパイルをしてください。
 
 検討
-スマホからも扱うためにWebAPIを用いてWebアプリにする.→とりあえずLAN内のみの予定
+スマホからも扱うためにWebAPIを用いてWebアプリにする.→やるとしてもLAN内のみ

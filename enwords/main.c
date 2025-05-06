@@ -44,7 +44,7 @@ int question=0;
 int correct=0;
 
 //設定ファイルを読み込む
-void readstataus(){
+int readstataus(){
     FILE *fin;
     char line[128];
     char* str;
@@ -72,6 +72,7 @@ void readstataus(){
         }
     }
     fclose(fin);
+    return 0;
 }
 
 //HOMEウィンドウボタンの描画
@@ -86,10 +87,11 @@ LRESULT CALLBACK WndProcHOME(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
                 break;
             //正答率を表示するメッセージウィンドウ
             case BUTTON_ID3:
-                LPCWSTR rate;
+                LPCWSTR rate[256];
                 swprintf(rate, 256 ,L"%d問中%d問正解です", question, correct);
                 MessageBox(NULL , rate ,
                     TEXT("正答率") , MB_ICONINFORMATION);
+                break;
             }
 	}
 	return DefWindowProc(hwnd , msg , wp , lp);
@@ -99,7 +101,6 @@ int openhomewindow(HINSTANCE hInstancea){
     HWND hwnd;
     MSG msg;
 
-    clickbutton=false;
     //設定ファイルを読み込み、値を構造体に保存
     readstataus();
     //ウィンドウと『問題を出題する』ボタンを作成する
@@ -119,7 +120,7 @@ int openhomewindow(HINSTANCE hInstancea){
     CreateWindow(
         TEXT("BUTTON") , TEXT("正答率を確認") ,
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON ,
-        0 , 50 , 300 , 50 ,
+        0 , 100 , 300 , 50 ,
         hwnd , (HMENU)BUTTON_ID3 , hInstancea , NULL
     );
     while (!clickbutton && GetMessage(&msg, NULL, 0, 0)) {
@@ -135,8 +136,6 @@ judge関数はデータベースに選択肢が正解か不正解かを問い合
 正解ならばdrawに正解を渡し、そうでないならば不正解を渡す
 */
 
-//☆
-
 //判定結果によって描画を行う
 void drawjudge(){
     LPCWSTR draw;
@@ -151,8 +150,6 @@ void drawjudge(){
     MessageBox(NULL , draw ,
 			TEXT("判定") , MB_ICONINFORMATION);
 }
-
-//☆
 
 //BASEウィンドウボタンの描画
 LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
@@ -186,6 +183,7 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
+//☆ ans入れたら動かなくなる(freeしてないから？)
 int drawBase(HINSTANCE hInstancea,char** ans){
     HWND hwnd;
     MSG msg;
@@ -242,7 +240,6 @@ int drawBase(HINSTANCE hInstancea,char** ans){
 }
 
 void study(HINSTANCE hInstancea){
-    bool returnhome=false;
     while (true)
     {
         answer=false;
@@ -312,6 +309,7 @@ int WINAPI WinMain(
     {
         cleardb();
         //homeウィンドウを開く
+        clickbutton=false;
         openhomewindow(hInstancea);
         returnhome=false;
         //問題の出題、回答ウィンドウを表示する

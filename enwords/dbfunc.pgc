@@ -8,7 +8,7 @@
 //dbの出題済み(仮)の列をすべてboolean=falseにする.
 void cleardb(void){
     EXEC SQL CONNECT TO enwords;
-    EXEC SQL UPDATE enwords finish =false WHERE finish=true;
+    EXEC SQL UPDATE enwords SET finish = false WHERE finish = true;
     EXEC SQL DISCONNECT enwords;
 }
 
@@ -26,16 +26,15 @@ int countrecord(){
 //dbから英単語+候補数分を返す
 int getwords(int choices,bool random){
     EXEC SQL BEGIN DECLARE SECTION;
-    choices++;
-    char** ans[choices+1];
+    char* ans[choices+1];
     EXEC SQL END DECLARE SECTION;
 
     EXEC SQL CONNECT TO enwords;
-    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE finish = false;
-    EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en=ans[0];
-    EXEC SQL UPDATE enwords finish =true;
+    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
+    EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en = :ans[0];
+    EXEC SQL UPDATE enwords SET finish =true;
     for (int i=2;i<choices;i++){
-        EXEC SQL SELECT en INTO :ans[i] FROM enwords;
+        EXEC SQL SELECT en INTO :ans[i] FROM enwords WHERE en <> :ans[0] ORDER BY random() LIMIT 1;
     }
     EXEC SQL COMMIT; 
     EXEC SQL DISCONNECT enwords;
