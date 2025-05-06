@@ -56,7 +56,7 @@ int getwords(int choices,bool random){
      
     
 #line 29 "dbfunc.pgc"
- char * ans [ choices + 1 ] ;
+ char * ans [ 256 ] ;
 /* exec sql end declare section */
 #line 30 "dbfunc.pgc"
 
