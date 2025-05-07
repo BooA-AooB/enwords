@@ -103,3 +103,28 @@ int viewwords(void){
     return 0;
 }
 */
+
+#define UNICODE
+#include <stdio.h>
+#include <stdlib.h>
+#include <ecpglib.h>
+#include <sqlca.h>
+
+int main(void) {
+    EXEC SQL BEGIN DECLARE SECTION;
+        char dbname[] = "enwords";
+        char user[] = "postgres";
+        char pass[] = "pswd";
+        char ver[512];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO :dbname USER :user USING :pass;
+
+    EXEC SQL SELECT en INTO :ver FROM enwords WHERE finish = 'false';
+
+    printf("false: %s\n", ver);
+
+    EXEC SQL DISCONNECT;
+
+    return 0;
+}
