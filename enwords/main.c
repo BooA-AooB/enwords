@@ -230,12 +230,13 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
     srand((unsigned int)time(NULL));
     for (int i = 0; i < st.choices+1; ++i) {
         rnm = rand() % (st.choices + 1 - i);
-        LPCWSTR en = ans[rnm];
+        wchar_t wbuf[100];
+        MultiByteToWideChar(CP_UTF8, 0, ans[rnm], -1, wbuf, 100);
         if (rnm == 0 && correctanswer==false) {
             correctanswer = true;
             CreateWindow(
                 TEXT("Button"),
-                en,
+                wbuf,
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                 0, 200 + i * 50,
                 300, 50,
@@ -245,7 +246,7 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
         else {
             CreateWindow(
                 TEXT("Button"),
-                en,
+                wbuf,
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                 0, 200 + i * 50,
                 300, 50,
@@ -326,10 +327,9 @@ int WINAPI WinMain(
     
     RegisterClassHOME();
     RegisterClassBASE();
+    cleardb();
     while(true)
     {
-        cleardb();
-        printf("%d", 1);
         //homeウィンドウを開く
         clickbutton=false;
         openhomewindow(hInstancea);

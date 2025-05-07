@@ -15,7 +15,7 @@
 
 //dbの出題済み(仮)の列をすべてboolean=falseにする.
 void cleardb(void){
-    { ECPGconnect(__LINE__, 0, "enwords" , NULL, NULL , NULL, 0); }
+    { ECPGconnect(__LINE__, 0, "enwords" , "postgres" , NULL , NULL, 0); }
 #line 10 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = false where finish = true", ECPGt_EOIT, ECPGt_EORT);}
@@ -39,39 +39,42 @@ int countrecord(){
 */
 
 //dbから英単語+候補数分を返す
-int getwords(int choices,bool random){
+char** getwords(int choices, bool random) {
+    if (sqlca.sqlcode != 0) {
+        printf("%d",1);
+        return NULL;
+    }
     /* exec sql begin declare section */
       
          
          
      
     
-#line 33 "dbfunc.pgc"
+#line 37 "dbfunc.pgc"
  struct varchar { 
-#line 31 "dbfunc.pgc"
+#line 35 "dbfunc.pgc"
  int len ;
  
-#line 32 "dbfunc.pgc"
+#line 36 "dbfunc.pgc"
  char arr [ 100 ] ;
  } ans [ 256 ] ;
 /* exec sql end declare section */
-#line 34 "dbfunc.pgc"
+#line 38 "dbfunc.pgc"
 
-    
     char** result = malloc(sizeof(char*) * (choices + 1));
     for (int i = 0; i < choices + 1; ++i) {
-        result[i] = malloc(100); 
+        result[i] = malloc(100);
     }
-    
-    { ECPGconnect(__LINE__, 0, "enwords" , NULL, NULL , NULL, 0); }
-#line 41 "dbfunc.pgc"
+
+    { ECPGconnect(__LINE__, 0, "enwords" , "postgres" , NULL , NULL, 0); }
+#line 44 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where finish = false order by random ( ) limit 1", ECPGt_EOIT, 
 	ECPGt_int,&(ans[0].len),(long)1,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,&(ans[0].arr),(long)100,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 42 "dbfunc.pgc"
+#line 45 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select jp from enwords where en = $1  ,  $2 ", 
 	ECPGt_int,&(ans[0].len),(long)1,(long)1,sizeof( struct varchar ), 
@@ -82,16 +85,16 @@ int getwords(int choices,bool random){
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,&(ans[1].arr),(long)100,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 43 "dbfunc.pgc"
+#line 46 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = true where en = $1  ,  $2 ", 
 	ECPGt_int,&(ans[0].len),(long)1,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,&(ans[0].arr),(long)100,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
-#line 44 "dbfunc.pgc"
+#line 47 "dbfunc.pgc"
 
-    for (int i=2;i<choices;i++){
+    for (int i = 2; i < choices + 1; i++) {
         { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where en <> $1  ,  $2  order by random ( ) limit 1", 
 	ECPGt_int,&(ans[0].len),(long)1,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
@@ -101,21 +104,22 @@ int getwords(int choices,bool random){
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,&(ans[i].arr),(long)100,(long)1,sizeof( struct varchar ), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 46 "dbfunc.pgc"
+#line 49 "dbfunc.pgc"
 
     }
     { ECPGtrans(__LINE__, NULL, "commit");}
-#line 48 "dbfunc.pgc"
- 
-    { ECPGdisconnect(__LINE__, "enwords");}
-#line 49 "dbfunc.pgc"
+#line 51 "dbfunc.pgc"
 
-    //0に正解を入れる
-    for (int i = 0; i < choices + 1; ++i){
+    { ECPGdisconnect(__LINE__, "enwords");}
+#line 52 "dbfunc.pgc"
+
+
+    for (int i = 0; i < choices + 1; ++i) {
         strncpy(result[i], ans[i].arr, ans[i].len);
-        result[i][ans[i].len] = '\0';  // null終端
+        result[i][ans[i].len] = '\0';
     }
-    return ans;
+
+    return result;  // ← ここが超重要！
 }
 
 /*
