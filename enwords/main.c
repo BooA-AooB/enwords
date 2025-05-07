@@ -231,6 +231,7 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
     for (int i = 0; i < st.choices+1; ++i) {
         rnm = rand() % (st.choices + 1 - i);
         wchar_t wbuf[100];
+        printf(ans);
         MultiByteToWideChar(CP_UTF8, 0, ans[rnm], -1, wbuf, 100);
         if (rnm == 0 && correctanswer==false) {
             correctanswer = true;
