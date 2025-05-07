@@ -231,7 +231,6 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
     for (int i = 0; i < st.choices+1; ++i) {
         rnm = rand() % (st.choices + 1 - i);
         wchar_t wbuf[100];
-        printf(ans);
         MultiByteToWideChar(CP_UTF8, 0, ans[rnm], -1, wbuf, 100);
         if (rnm == 0 && correctanswer==false) {
             correctanswer = true;
@@ -269,8 +268,8 @@ void study(HINSTANCE hInstancea){
         endflag=false;
         end=false;
         //候補、回答を取得する.回答は配列の0番目
-        char** ans;
-        ans=getwords(st.choices,st.random);
+        char ans[512][256];
+        getwords(st.choices,ans);
         //候補の数に合うように描画する
         drawBase(hInstancea, ans);
         //選択肢が選ばれたら正解か不正解かを判定し、描画する
@@ -278,7 +277,6 @@ void study(HINSTANCE hInstancea){
             drawjudge();
         }
         //『ホームに戻る』が押されたら、ループを終了する
-        free(ans);
         if (returnhome == true){
             break;
         }

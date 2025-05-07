@@ -2,14 +2,48 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ecpglib.h>
+#include <sqlca.h>
+
+/*
+connectまでの一連の処理(値を1つ取り出すプログラムより流用)
+int main(void) {
+    EXEC SQL BEGIN DECLARE SECTION;
+        char dbname[] = "enwords";
+        char user[] = "postgres";
+        char pass[] = "pswd";
+        char ver[512];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO :dbname USER :user USING :pass;
+
+    EXEC SQL SELECT en INTO :ver FROM enwords WHERE finish = 'false';
+
+    printf("false: %s\n", ver);
+
+    EXEC SQL DISCONNECT;
+
+    return 0;
+}
+*/
+
+
+
 
 //変数に代入するときは : で中身を取り出す
 
 //dbの出題済み(仮)の列をすべてboolean=falseにする.
 void cleardb(void){
-    EXEC SQL CONNECT TO enwords USER postgres;
+    EXEC SQL BEGIN DECLARE SECTION;
+        char dbname[] = "enwords";
+        char user[] = "postgres";
+        char pass[] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv";
+        char ver[512];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO :dbname USER :user USING :pass;
     EXEC SQL UPDATE enwords SET finish = false WHERE finish = true;
-    EXEC SQL DISCONNECT enwords;
+    EXEC SQL DISCONNECT;
 }
 /*
 //dbからレコードの個数を返す。
@@ -25,38 +59,29 @@ int countrecord(){
 */
 
 //dbから英単語+候補数分を返す
-char** getwords(int choices, bool random) {
-    if (sqlca.sqlcode != 0) {
-        printf("%d",1);
-        return NULL;
-    }
+void getwords(int choices, char ans[][256]) {
     EXEC SQL BEGIN DECLARE SECTION;
-    struct varchar {
-        int len;
-        char arr[100];
-    } ans[256];
+        char dbname[] = "enwords";
+        char user[] = "postgres";
+        char pass[] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv";
+        char ver[512][256];
     EXEC SQL END DECLARE SECTION;
-    char** result = malloc(sizeof(char*) * (choices + 1));
-    for (int i = 0; i < choices + 1; ++i) {
-        result[i] = malloc(100);
-    }
 
-    EXEC SQL CONNECT TO enwords USER postgres;
-    EXEC SQL SELECT en INTO :ans[0] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
-    EXEC SQL SELECT jp INTO :ans[1] FROM enwords WHERE en = :ans[0];
-    EXEC SQL UPDATE enwords SET finish = true WHERE en = :ans[0];
+    EXEC SQL CONNECT TO :dbname USER :user USING :pass;
+
+    EXEC SQL SELECT en INTO :ver[0] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
+    EXEC SQL SELECT jp INTO :ver[1] FROM enwords WHERE en = :ver[0];
+    EXEC SQL UPDATE enwords SET finish = true WHERE en = :ver[0];
     for (int i = 2; i < choices + 1; i++) {
-        EXEC SQL SELECT en INTO :ans[i] FROM enwords WHERE en <> :ans[0] ORDER BY random() LIMIT 1;
+        EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
     }
     EXEC SQL COMMIT;
-    EXEC SQL DISCONNECT enwords;
 
-    for (int i = 0; i < choices + 1; ++i) {
-        strncpy(result[i], ans[i].arr, ans[i].len);
-        result[i][ans[i].len] = '\0';
+    for (int i = 0; i < choices + 1; i++) {
+        strncpy(ans[i], ver[i],256);
+        ans[i][255] = '\0';
     }
-
-    return result;  // ← ここが超重要！
+    EXEC SQL DISCONNECT;
 }
 
 /*
