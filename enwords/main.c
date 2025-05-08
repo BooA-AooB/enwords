@@ -185,12 +185,13 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
-void shuffle_choices(int* idx, int n) {
-    for (int i = n - 1; i > 0; i--) {
-        int j = rand() % (i + 1);
-        int tmp = idx[i];
-        idx[i] = idx[j];
-        idx[j] = tmp;
+void shuffle(char ans[][256]) {
+    for (int i=1;i<st.choices+1;i++) {
+        int j= 1 + (int)( rand() * (st.choices - 1 + 1.0) / (1.0 + RAND_MAX) );
+        char tmp[256];
+        strcpy(tmp, ans[i]);
+        strcpy(ans[i], ans[j]);
+        strcpy(ans[j], tmp);
     }
 }
 
@@ -235,16 +236,12 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
 
     //乱数
     srand((unsigned int)time(NULL));
-    int* idx[st.choices];
-    for (int i = 0; i < st.choices; i++) {
-        idx[i] = i + 1; 
-    }
-    shuffle_choices(idx, st.choices);
-    for (int i = 0; i < st.choices; ++i) {
-        int realIndex = idx[i];
+    char* cache=ans[0];
+    shuffle(ans);
+    for (int i = 1; i < st.choices+1; ++i) {
         wchar_t wbuf[256];
-        MultiByteToWideChar(CP_UTF8, 0, ans[realIndex], -1, wbuf, 256);
-        if (realIndex == 1) {
+        MultiByteToWideChar(CP_UTF8, 0, ans[i], -1, wbuf, 256);
+        if (cache == ans[i]) {
             CreateWindow(
                 TEXT("Button"),
                 wbuf,
