@@ -69,9 +69,9 @@ void getwords(int choices, char ans[][256]) {
 
     EXEC SQL CONNECT TO :dbname USER :user USING :pass;
 
-    EXEC SQL SELECT en INTO :ver[0] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
-    EXEC SQL SELECT jp INTO :ver[1] FROM enwords WHERE en = :ver[0];
-    EXEC SQL UPDATE enwords SET finish = true WHERE en = :ver[0];
+    EXEC SQL SELECT en INTO :ver[1] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
+    EXEC SQL SELECT jp INTO :ver[0] FROM enwords WHERE en = :ver[1];
+    EXEC SQL UPDATE enwords SET finish = true WHERE en = :ver[1];
     for (int i = 2; i < choices + 1; i++) {
         EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
     }

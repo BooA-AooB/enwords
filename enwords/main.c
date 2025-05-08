@@ -185,6 +185,15 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
+void shuffle_choices(int* idx, int n) {
+    for (int i = n - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        int tmp = idx[i];
+        idx[i] = idx[j];
+        idx[j] = tmp;
+    }
+}
+
 
 int drawBase(HINSTANCE hInstancea, char** ans) {
     HWND hwnd;
@@ -225,15 +234,17 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
     );
 
     //乱数
-    bool correctanswer=false;
-    int rnm;
     srand((unsigned int)time(NULL));
-    for (int i = 0; i < st.choices+1; ++i) {
-        rnm = rand() % (st.choices + 1 - i);
-        wchar_t wbuf[100];
-        MultiByteToWideChar(CP_UTF8, 0, ans[rnm], -1, wbuf, 100);
-        if (rnm == 0 && correctanswer==false) {
-            correctanswer = true;
+    int* idx[st.choices];
+    for (int i = 0; i < st.choices; i++) {
+        idx[i] = i + 1; 
+    }
+    shuffle_choices(idx, st.choices);
+    for (int i = 0; i < st.choices; ++i) {
+        int realIndex = idx[i];
+        wchar_t wbuf[256];
+        MultiByteToWideChar(CP_UTF8, 0, ans[realIndex], -1, wbuf, 256);
+        if (realIndex == 1) {
             CreateWindow(
                 TEXT("Button"),
                 wbuf,
