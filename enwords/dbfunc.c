@@ -114,19 +114,19 @@ void getwords(int choices, char ans[][256]) {
 
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where finish = false order by random ( ) limit 1", ECPGt_EOIT, 
-	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
 #line 72 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select jp from enwords where en = $1 ", 
-	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
 	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
+	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
 #line 73 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = true where en = $1 ", 
-	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
 #line 74 "dbfunc.pgc"
 

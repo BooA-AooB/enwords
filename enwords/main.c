@@ -185,14 +185,16 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 	return DefWindowProc(hwnd , msg , wp , lp);
 }
 
+//ansをシャッフルする
 void shuffle(char ans[][256]) {
-    for (int i=1;i<st.choices+1;i++) {
-        int j= 1 + (int)( rand() * (st.choices - 1 + 1.0) / (1.0 + RAND_MAX) );
+    for (int i = st.choices; i > 1; i--) {
+        int j = 1 + rand() % i; // 1 から i-1 の間で選ぶ
         char tmp[256];
         strcpy(tmp, ans[i]);
         strcpy(ans[i], ans[j]);
         strcpy(ans[j], tmp);
     }
+
 }
 
 
@@ -234,14 +236,15 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
         hwnd , (HMENU)BUTTON_ID4 , hInstancea , NULL
     );
 
-    //乱数
+    //乱数でバラバラの順番にしたものを出題する。
     srand((unsigned int)time(NULL));
-    char* cache=ans[0];
+    char* cache=ans[1];
     shuffle(ans);
-    for (int i = 1; i < st.choices+1; ++i) {
+    for (int i = 1; i < 4; i++) {
         wchar_t wbuf[256];
         MultiByteToWideChar(CP_UTF8, 0, ans[i], -1, wbuf, 256);
-        if (cache == ans[i]) {
+
+        if (strcmp(cache, ans[i]) == 0) {
             CreateWindow(
                 TEXT("Button"),
                 wbuf,
@@ -251,6 +254,7 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
                 hwnd, (HMENU)BUTTON_ANSWER, hInstancea, NULL
             );
         }
+        
         else {
             CreateWindow(
                 TEXT("Button"),
@@ -276,7 +280,7 @@ void study(HINSTANCE hInstancea){
         endflag=false;
         end=false;
         //候補、回答を取得する.回答は配列の0番目
-        char ans[512][256];
+        char ans[4][256];
         getwords(st.choices,ans);
         //候補の数に合うように描画する
         drawBase(hInstancea, ans);
