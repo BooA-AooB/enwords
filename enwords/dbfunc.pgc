@@ -59,28 +59,38 @@ int countrecord(){
 */
 
 //dbから英単語+候補数分を返す
-void getwords(int choices, char ans[][256]) {
+void getwords(int choices, char ans[2][256]) {
     EXEC SQL BEGIN DECLARE SECTION;
         char dbname[] = "enwords";
         char user[] = "postgres";
         char pass[] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv";
-        char ver[512][256];
+        char test[2][256];
+        //char ver[256][256];
     EXEC SQL END DECLARE SECTION;
 
     EXEC SQL CONNECT TO :dbname USER :user USING :pass;
 
-    EXEC SQL SELECT en INTO :ver[1] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
-    EXEC SQL SELECT jp INTO :ver[0] FROM enwords WHERE en = :ver[1];
-    EXEC SQL UPDATE enwords SET finish = true WHERE en = :ver[1];
+    EXEC SQL SELECT en INTO :test[1] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
+    EXEC SQL SELECT jp INTO :test[0] FROM enwords WHERE en = :test[1];
+    EXEC SQL UPDATE enwords SET finish = true WHERE en = :test[1];
+    /*
     for (int i = 2; i < choices + 1; i++) {
         EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
     }
+        */
     EXEC SQL COMMIT;
+    test[0][255] = '\0';  // 念のため明示的に終端
+    test[1][255] = '\0';
+    strncpy_s(ans[0], 256, test[0], 255);
+    strncpy_s(ans[1], 256, test[1], 255);
 
+
+    /*
     for (int i = 0; i < choices + 1; i++) {
         strncpy(ans[i], ver[i],256);
         ans[i][255] = '\0';
     }
+        */
     EXEC SQL DISCONNECT;
 }
 

@@ -186,13 +186,13 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 }
 
 //ansをシャッフルする
-void shuffle(char ans[][256]) {
+void shuffle(char ans[256][256]) {
     for (int i = st.choices; i > 1; i--) {
         int j = 1 + rand() % i; // 1 から i-1 の間で選ぶ
         char tmp[256];
-        strcpy(tmp, ans[i]);
-        strcpy(ans[i], ans[j]);
-        strcpy(ans[j], tmp);
+        strcpy_s(tmp,256, ans[i]);
+        strcpy_s(ans[i],256, ans[j]);
+        strcpy_s(ans[j], 256,tmp);
     }
 
 }
@@ -235,10 +235,16 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
         0 , 100 , 300 , 50 ,
         hwnd , (HMENU)BUTTON_ID4 , hInstancea , NULL
     );
-
+    
     //乱数でバラバラの順番にしたものを出題する。
     srand((unsigned int)time(NULL));
-    char* cache=ans[1];
+    char cache[256];
+    strncpy_s(cache,256,ans[1],256);
+    if (strcmp(cache, ans[1]) == 0) {
+        MessageBox(NULL, TEXT("A"),
+            TEXT("CHECK"), MB_ICONINFORMATION);
+    }
+    /*
     shuffle(ans);
     for (int i = 1; i < 4; i++) {
         wchar_t wbuf[256];
@@ -266,6 +272,7 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
             );
         }
     }
+    */
 
     while (!returnhome && !endflag && !end && GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
@@ -280,7 +287,7 @@ void study(HINSTANCE hInstancea){
         endflag=false;
         end=false;
         //候補、回答を取得する.回答は配列の0番目
-        char ans[4][256];
+        char ans[2][256];
         getwords(st.choices,ans);
         //候補の数に合うように描画する
         drawBase(hInstancea, ans);

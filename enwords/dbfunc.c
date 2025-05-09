@@ -87,12 +87,13 @@ int countrecord(){
 */
 
 //dbから英単語+候補数分を返す
-void getwords(int choices, char ans[][256]) {
+void getwords(int choices, char ans[2][256]) {
     /* exec sql begin declare section */
            
            
            
          
+        //char ver[256][256];
     
 #line 64 "dbfunc.pgc"
  char dbname [] = "enwords" ;
@@ -104,51 +105,54 @@ void getwords(int choices, char ans[][256]) {
  char pass [] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv" ;
  
 #line 67 "dbfunc.pgc"
- char ver [ 512 ] [ 256 ] ;
+ char test [ 2 ] [ 256 ] ;
 /* exec sql end declare section */
-#line 68 "dbfunc.pgc"
+#line 69 "dbfunc.pgc"
 
 
     { ECPGconnect(__LINE__, 0, dbname , user , pass , NULL, 0); }
-#line 70 "dbfunc.pgc"
+#line 71 "dbfunc.pgc"
 
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where finish = false order by random ( ) limit 1", ECPGt_EOIT, 
-	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 72 "dbfunc.pgc"
-
-    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select jp from enwords where en = $1 ", 
-	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
-	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
 #line 73 "dbfunc.pgc"
 
-    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = true where en = $1 ", 
-	ECPGt_char,(ver[1]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
+    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select jp from enwords where en = $1 ", 
+	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
+	ECPGt_char,(test[0]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
 #line 74 "dbfunc.pgc"
 
+    { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = true where en = $1 ", 
+	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
+#line 75 "dbfunc.pgc"
+
+    /*
     for (int i = 2; i < choices + 1; i++) {
-        { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where en <> $1  order by random ( ) limit 1", 
-	ECPGt_char,(ver[0]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
-	ECPGt_char,(ver[i]),(long)256,(long)1,(256)*sizeof(char), 
-	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 76 "dbfunc.pgc"
-
+        EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
     }
+        */
     { ECPGtrans(__LINE__, NULL, "commit");}
-#line 78 "dbfunc.pgc"
+#line 81 "dbfunc.pgc"
+
+    test[0][255] = '\0';  // 念のため明示的に終端
+    test[1][255] = '\0';
+    strncpy_s(ans[0], 256, test[0], 255);
+    strncpy_s(ans[1], 256, test[1], 255);
 
 
+    /*
     for (int i = 0; i < choices + 1; i++) {
         strncpy(ans[i], ver[i],256);
         ans[i][255] = '\0';
     }
+        */
     { ECPGdisconnect(__LINE__, "CURRENT");}
-#line 84 "dbfunc.pgc"
+#line 94 "dbfunc.pgc"
 
 }
 
