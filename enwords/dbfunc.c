@@ -46,7 +46,6 @@ void cleardb(void){
            
            
            
-         
     
 #line 38 "dbfunc.pgc"
  char dbname [] = "enwords" ;
@@ -55,148 +54,83 @@ void cleardb(void){
  char user [] = "postgres" ;
  
 #line 40 "dbfunc.pgc"
- char pass [] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv" ;
- 
-#line 41 "dbfunc.pgc"
- char ver [ 512 ] ;
+ char pass [] = "J6'*J}JrsdW4hJ:,mjzwaWcv" ;
 /* exec sql end declare section */
-#line 42 "dbfunc.pgc"
+#line 41 "dbfunc.pgc"
 
 
     { ECPGconnect(__LINE__, 0, dbname , user , pass , NULL, 0); }
-#line 44 "dbfunc.pgc"
+#line 43 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = false where finish = true", ECPGt_EOIT, ECPGt_EORT);}
-#line 45 "dbfunc.pgc"
+#line 44 "dbfunc.pgc"
 
     { ECPGdisconnect(__LINE__, "CURRENT");}
-#line 46 "dbfunc.pgc"
+#line 45 "dbfunc.pgc"
 
 }
-/*
-//dbからレコードの個数を返す。
-int countrecord(){
-    EXEC SQL BEGIN DECLARE SECTION;
-    int countrecord;
-    EXEC SQL END DECLARE SECTION;
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL SELECT COUNT(*) INTO :countrecord FROM enwords;
-    EXEC SQL DISCONNECT enwords;
-    return countrecord;
-}
-*/
 
 //dbから英単語+候補数分を返す
-void getwords(int choices, char ans[2][256]) {
+void getwords(int choices, char ans[11][101]) {
     /* exec sql begin declare section */
            
            
            
          
-        //char ver[256][256];
     
-#line 64 "dbfunc.pgc"
+#line 51 "dbfunc.pgc"
  char dbname [] = "enwords" ;
  
-#line 65 "dbfunc.pgc"
+#line 52 "dbfunc.pgc"
  char user [] = "postgres" ;
  
-#line 66 "dbfunc.pgc"
- char pass [] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv" ;
+#line 53 "dbfunc.pgc"
+ char pass [] = "J6'*J}JrsdW4hJ:,mjzwaWcv" ;
  
-#line 67 "dbfunc.pgc"
- char test [ 2 ] [ 256 ] ;
+#line 54 "dbfunc.pgc"
+ char test [ 11 ] [ 101 ] ;
 /* exec sql end declare section */
-#line 69 "dbfunc.pgc"
+#line 55 "dbfunc.pgc"
 
 
+    memset(test, 0, sizeof(char) * 11 * 101);
+    
     { ECPGconnect(__LINE__, 0, dbname , user , pass , NULL, 0); }
-#line 71 "dbfunc.pgc"
+#line 59 "dbfunc.pgc"
 
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where finish = false order by random ( ) limit 1", ECPGt_EOIT, 
-	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(test[1]),(long)101,(long)1,(101)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 73 "dbfunc.pgc"
+#line 61 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select jp from enwords where en = $1 ", 
-	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(test[1]),(long)101,(long)1,(101)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
-	ECPGt_char,(test[0]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(test[0]),(long)101,(long)1,(101)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
-#line 74 "dbfunc.pgc"
+#line 62 "dbfunc.pgc"
 
     { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "update enwords set finish = true where en = $1 ", 
-	ECPGt_char,(test[1]),(long)256,(long)1,(256)*sizeof(char), 
+	ECPGt_char,(test[1]),(long)101,(long)1,(101)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
-#line 75 "dbfunc.pgc"
+#line 63 "dbfunc.pgc"
 
-    /*
-    for (int i = 2; i < choices + 1; i++) {
-        EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
+    
+    for (int i = 2; i < choices + 2; i++) {
+        { ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select en from enwords where en <> $1  order by random ( ) limit 1", 
+	ECPGt_char,(test[0]),(long)101,(long)1,(101)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, 
+	ECPGt_char,(test[i]),(long)101,(long)1,(101)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
+#line 66 "dbfunc.pgc"
+
+        strcpy_s(ans[i], sizeof(ans[i]), test[i]);
     }
-        */
     { ECPGtrans(__LINE__, NULL, "commit");}
-#line 81 "dbfunc.pgc"
+#line 69 "dbfunc.pgc"
 
-    test[0][255] = '\0';  // 念のため明示的に終端
-    test[1][255] = '\0';
-    strncpy_s(ans[0], 256, test[0], 255);
-    strncpy_s(ans[1], 256, test[1], 255);
-
-
-    /*
-    for (int i = 0; i < choices + 1; i++) {
-        strncpy(ans[i], ver[i],256);
-        ans[i][255] = '\0';
-    }
-        */
     { ECPGdisconnect(__LINE__, "CURRENT");}
-#line 94 "dbfunc.pgc"
+#line 70 "dbfunc.pgc"
 
 }
-
-/*
-int insertwords(const char* jp,const char* en){
-    EXEC SQL BEGIN DECLARE SECTION;
-    char word_jp[100];
-    char word_en[100];
-    EXEC SQL END DECLARE SECTION;
-
-    strncpy(word_jp, jp,sizeof(word_jp)-1); 
-    word_jp[sizeof(word_jp)-1] = '\0';
-    strncpy(word_en, en,sizeof(word_en)-1);
-    word_en[sizeof(word_en)-1] = '\0'; 
-
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL INSERT INTO enwords (jp,en) VALUES (:word_jp,:word_en);
-    EXEC SQL COMMIT; 
-    EXEC SQL DISCONNECT enwords;
-    //成功
-    return 0;
-}
-
-int deletewords(const char* jp,const char* en){
-    EXEC SQL BEGIN DECLARE SECTION;
-    char word_jp[100];
-    char word_en[100];
-    EXEC SQL END DECLARE SECTION;
-
-    strncpy(word_jp, jp,sizeof(word_jp)-1); 
-    word_jp[sizeof(word_jp)-1] = '\0';
-    strncpy(word_en, en,sizeof(word_en)-1);
-    word_en[sizeof(word_en)-1] = '\0'; 
-
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL DELETE FROM enwords WHERE jp=:word_jp AND en=:word_en;
-    EXEC SQL COMMIT; 
-    EXEC SQL DISCONNECT enwords;
-    //成功
-    return 0;
-}
-
-int viewwords(void){
-    //成功
-    return 0;
-}
-*/

@@ -13,7 +13,7 @@
 1.英単語をデータベースに登録。
     changedb.exeから、enwords.dbへ値の挿入、削除を行えます。
 2.候補数、ランダム値を設定。(※ランダムはオフにして実装するの面倒?)
-    stataus.confのchoicesの値を書き換えることで候補数が変化します。
+    stataus.confのchoicesの値を書き換えることで候補数が変化します。候補数は9までです。
     stataus.confのrandomの値をTrue(ランダムに出題する),またはFalse(データベースに登録された順番に出題する)に書き換えてください。初期値はTrueです。
 3.本体を起動。
     enwords.exeが本体です。

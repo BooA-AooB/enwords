@@ -37,104 +37,35 @@ void cleardb(void){
     EXEC SQL BEGIN DECLARE SECTION;
         char dbname[] = "enwords";
         char user[] = "postgres";
-        char pass[] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv";
-        char ver[512];
+        char pass[] = "J6'*J}JrsdW4hJ:,mjzwaWcv";
     EXEC SQL END DECLARE SECTION;
 
     EXEC SQL CONNECT TO :dbname USER :user USING :pass;
     EXEC SQL UPDATE enwords SET finish = false WHERE finish = true;
     EXEC SQL DISCONNECT;
 }
-/*
-//dbからレコードの個数を返す。
-int countrecord(){
-    EXEC SQL BEGIN DECLARE SECTION;
-    int countrecord;
-    EXEC SQL END DECLARE SECTION;
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL SELECT COUNT(*) INTO :countrecord FROM enwords;
-    EXEC SQL DISCONNECT enwords;
-    return countrecord;
-}
-*/
 
 //dbから英単語+候補数分を返す
-void getwords(int choices, char ans[2][256]) {
+void getwords(int choices, char ans[11][101]) {
     EXEC SQL BEGIN DECLARE SECTION;
         char dbname[] = "enwords";
         char user[] = "postgres";
-        char pass[] = "PW:J6'*J}JrsdW4hJ:,mjzwaWcv";
-        char test[2][256];
-        //char ver[256][256];
+        char pass[] = "J6'*J}JrsdW4hJ:,mjzwaWcv";
+        char test[11][101];
     EXEC SQL END DECLARE SECTION;
 
+    memset(test, 0, sizeof(char) * 11 * 101);
+    
     EXEC SQL CONNECT TO :dbname USER :user USING :pass;
 
     EXEC SQL SELECT en INTO :test[1] FROM enwords WHERE finish = false ORDER BY random() LIMIT 1;
     EXEC SQL SELECT jp INTO :test[0] FROM enwords WHERE en = :test[1];
     EXEC SQL UPDATE enwords SET finish = true WHERE en = :test[1];
-    /*
-    for (int i = 2; i < choices + 1; i++) {
-        EXEC SQL SELECT en INTO :ver[i] FROM enwords WHERE en <> :ver[0] ORDER BY random() LIMIT 1;
+    
+    for (int i = 2; i < choices + 2; i++) {
+        EXEC SQL SELECT en INTO :test[i] FROM enwords WHERE en <> :test[0] ORDER BY random() LIMIT 1;
+        strcpy_s(ans[i], sizeof(ans[i]), test[i]);
     }
-        */
     EXEC SQL COMMIT;
-    test[0][255] = '\0';  // 念のため明示的に終端
-    test[1][255] = '\0';
-    strncpy_s(ans[0], 256, test[0], 255);
-    strncpy_s(ans[1], 256, test[1], 255);
-
-
-    /*
-    for (int i = 0; i < choices + 1; i++) {
-        strncpy(ans[i], ver[i],256);
-        ans[i][255] = '\0';
-    }
-        */
     EXEC SQL DISCONNECT;
 }
-
-/*
-int insertwords(const char* jp,const char* en){
-    EXEC SQL BEGIN DECLARE SECTION;
-    char word_jp[100];
-    char word_en[100];
-    EXEC SQL END DECLARE SECTION;
-
-    strncpy(word_jp, jp,sizeof(word_jp)-1); 
-    word_jp[sizeof(word_jp)-1] = '\0';
-    strncpy(word_en, en,sizeof(word_en)-1);
-    word_en[sizeof(word_en)-1] = '\0'; 
-
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL INSERT INTO enwords (jp,en) VALUES (:word_jp,:word_en);
-    EXEC SQL COMMIT; 
-    EXEC SQL DISCONNECT enwords;
-    //成功
-    return 0;
-}
-
-int deletewords(const char* jp,const char* en){
-    EXEC SQL BEGIN DECLARE SECTION;
-    char word_jp[100];
-    char word_en[100];
-    EXEC SQL END DECLARE SECTION;
-
-    strncpy(word_jp, jp,sizeof(word_jp)-1); 
-    word_jp[sizeof(word_jp)-1] = '\0';
-    strncpy(word_en, en,sizeof(word_en)-1);
-    word_en[sizeof(word_en)-1] = '\0'; 
-
-    EXEC SQL CONNECT TO enwords;
-    EXEC SQL DELETE FROM enwords WHERE jp=:word_jp AND en=:word_en;
-    EXEC SQL COMMIT; 
-    EXEC SQL DISCONNECT enwords;
-    //成功
-    return 0;
-}
-
-int viewwords(void){
-    //成功
-    return 0;
-}
-*/

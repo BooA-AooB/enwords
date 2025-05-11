@@ -1,5 +1,5 @@
 //enwords実行ファイルのmainファイル
-//『☆彡』は途中
+//『☆』は途中
 #define UNICODE
 #define BUTTON_ID1 0
 #define BUTTON_ID2 1
@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <direct.h> 
 #define CONFIG_FILE "stataus.conf"
 
 /*
@@ -51,9 +52,11 @@ int readstataus(){
     char* str;
     char key[128];
     char value[128];
-    if ((fin=fopen(CONFIG_FILE,"r"))==NULL){
+    if ((fin = fopen(CONFIG_FILE, "r")) == NULL) {
+        MessageBox(NULL, TEXT("Fuck"), TEXT("エラー"), MB_OK | MB_ICONERROR);
         return -1;
     }
+
 
     //fgets(char *srting,int n,FILE *stream); 
     //fgetsは最初の"\n" or "EOF" or 読み込まれた文字数がn-1までの文字を戦闘から読み取る
@@ -62,7 +65,7 @@ int readstataus(){
         //sscanf(const char *buffer, const char *format, argument-list);
         //bufferからargument-list で指定された位置へ、データを読み取る
         //%[^=]は、=を格納しないの意.=を区切りとして前後をkey,valueに格納
-        sscanf(line,"%[^=]=%s", key, value);
+        sscanf_s(line," %[^=]=%s", key, 128, value, 128);
         //choicesのvalueは整数
         //strcmpの戻り値は成功ならば0
         if(strcmp(key,"choices")==0){
@@ -186,19 +189,21 @@ LRESULT CALLBACK WndProcBASE(HWND hwnd , UINT msg , WPARAM wp , LPARAM lp) {
 }
 
 //ansをシャッフルする
-void shuffle(char ans[256][256]) {
+/*
+void shuffle(char ans[][101]) {
     for (int i = st.choices; i > 1; i--) {
         int j = 1 + rand() % i; // 1 から i-1 の間で選ぶ
-        char tmp[256];
-        strcpy_s(tmp,256, ans[i]);
-        strcpy_s(ans[i],256, ans[j]);
-        strcpy_s(ans[j], 256,tmp);
+        char tmp[st.choices+1];
+        strcpy_s(tmp,101, ans[i]);
+        strcpy_s(ans[i],101, ans[j]);
+        strcpy_s(ans[j], 101,tmp);
     }
 
 }
+    */
 
 
-int drawBase(HINSTANCE hInstancea, char** ans) {
+int drawBase(HINSTANCE hInstancea, char ans[10][101]) {
     HWND hwnd;
     MSG msg;
     question++;
@@ -237,23 +242,23 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
     );
     
     //乱数でバラバラの順番にしたものを出題する。
-    srand((unsigned int)time(NULL));
-    char cache[256];
-    strncpy_s(cache,256,ans[1],256);
-    if (strcmp(cache, ans[1]) == 0) {
-        MessageBox(NULL, TEXT("A"),
-            TEXT("CHECK"), MB_ICONINFORMATION);
-    }
-    /*
-    shuffle(ans);
-    for (int i = 1; i < 4; i++) {
-        wchar_t wbuf[256];
-        MultiByteToWideChar(CP_UTF8, 0, ans[i], -1, wbuf, 256);
-
-        if (strcmp(cache, ans[i]) == 0) {
+    //srand((unsigned int)time(NULL));
+    //char cache[101];
+    //strcpy_s(cache[1], sizeof(cache[1]), ans[1]);
+    //shuffle(ans);
+    for (int i = 1; i < 5; i++) {
+        wchar_t wide[101];
+        MultiByteToWideChar(
+            CP_ACP, 0, ans[i], -1,
+            wide, 101
+        );
+        PCWSTR lpsz = wide;
+        
+        //if (strcmp(cache, ans[i]) == 0) {
+        if(i==0){
             CreateWindow(
                 TEXT("Button"),
-                wbuf,
+                wide,
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                 0, 200 + i * 50,
                 300, 50,
@@ -264,7 +269,7 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
         else {
             CreateWindow(
                 TEXT("Button"),
-                wbuf,
+                lpsz,
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                 0, 200 + i * 50,
                 300, 50,
@@ -272,7 +277,6 @@ int drawBase(HINSTANCE hInstancea, char** ans) {
             );
         }
     }
-    */
 
     while (!returnhome && !endflag && !end && GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
@@ -287,8 +291,8 @@ void study(HINSTANCE hInstancea){
         endflag=false;
         end=false;
         //候補、回答を取得する.回答は配列の0番目
-        char ans[2][256];
-        getwords(st.choices,ans);
+        char ans[10][101];
+        getwords(5,ans);
         //候補の数に合うように描画する
         drawBase(hInstancea, ans);
         //選択肢が選ばれたら正解か不正解かを判定し、描画する
