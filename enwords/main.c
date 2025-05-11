@@ -53,7 +53,7 @@ int readstataus(){
     char key[128];
     char value[128];
     if ((fin = fopen(CONFIG_FILE, "r")) == NULL) {
-        MessageBox(NULL, TEXT("Fuck"), TEXT("エラー"), MB_OK | MB_ICONERROR);
+        MessageBox(NULL, TEXT("Error"), TEXT("エラー"), MB_OK | MB_ICONERROR);
         return -1;
     }
 
@@ -255,7 +255,7 @@ int drawBase(HINSTANCE hInstancea, char ans[10][101]) {
         PCWSTR lpsz = wide;
         
         //if (strcmp(cache, ans[i]) == 0) {
-        if(i==0){
+        if(i==1){
             CreateWindow(
                 TEXT("Button"),
                 wide,
@@ -292,7 +292,7 @@ void study(HINSTANCE hInstancea){
         end=false;
         //候補、回答を取得する.回答は配列の0番目
         char ans[10][101];
-        getwords(5,ans);
+        getwords(st.choices,ans);
         //候補の数に合うように描画する
         drawBase(hInstancea, ans);
         //選択肢が選ばれたら正解か不正解かを判定し、描画する

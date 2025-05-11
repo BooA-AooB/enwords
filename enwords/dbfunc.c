@@ -125,12 +125,15 @@ void getwords(int choices, char ans[11][101]) {
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EORT);}
 #line 66 "dbfunc.pgc"
 
+    }
+    
+    for (int i = 2; i < choices+2; i++){
         strcpy_s(ans[i], sizeof(ans[i]), test[i]);
     }
     { ECPGtrans(__LINE__, NULL, "commit");}
-#line 69 "dbfunc.pgc"
+#line 72 "dbfunc.pgc"
 
     { ECPGdisconnect(__LINE__, "CURRENT");}
-#line 70 "dbfunc.pgc"
+#line 73 "dbfunc.pgc"
 
 }

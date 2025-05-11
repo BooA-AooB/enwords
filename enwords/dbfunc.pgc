@@ -64,6 +64,9 @@ void getwords(int choices, char ans[11][101]) {
     
     for (int i = 2; i < choices + 2; i++) {
         EXEC SQL SELECT en INTO :test[i] FROM enwords WHERE en <> :test[0] ORDER BY random() LIMIT 1;
+    }
+    
+    for (int i = 2; i < choices+2; i++){
         strcpy_s(ans[i], sizeof(ans[i]), test[i]);
     }
     EXEC SQL COMMIT;
